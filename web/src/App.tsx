@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CsvImport } from "./components/CsvImport";
 import { LabelForm } from "./components/LabelForm";
 import { LabelPreview } from "./components/LabelPreview";
 import { PredefinedSelector } from "./components/PredefinedSelector";
@@ -30,7 +31,7 @@ export function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [previewLabel, setPreviewLabel] = useState<LabelInput | null>(null);
-  const [activePanel, setActivePanel] = useState<"custom" | "predefined">("custom");
+  const [activePanel, setActivePanel] = useState<"custom" | "predefined" | "csv">("custom");
 
   useEffect(() => {
     const run = async () => {
@@ -62,6 +63,20 @@ export function App() {
 
     const single = selected[0];
     saveBlob(result.blob, `${slugifyTitle(single.title)}.stl`);
+  };
+
+  const handleCsv = async (rows: LabelInput[], onProgress: (done: number, total: number) => void) => {
+    setError("");
+    try {
+      const result = await downloadBatch(rows, onProgress);
+      if (result.isZip) {
+        saveBlob(result.blob, buildBatchZipFileName());
+        return;
+      }
+      saveBlob(result.blob, `${slugifyTitle(rows[0].title)}.stl`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate labels from the CSV");
+    }
   };
 
   return (
@@ -105,6 +120,10 @@ export function App() {
       <div className="layout">
         <LabelForm onGenerate={handleCustom} onPreviewChange={setPreviewLabel} isActive={activePanel === "custom"} onActivate={() => setActivePanel("custom")} />
         <PredefinedSelector labels={labels} onGenerate={handleBatch} onPreviewChange={setPreviewLabel} isActive={activePanel === "predefined"} onActivate={() => setActivePanel("predefined")} />
+      </div>
+
+      <div className="layout csv-layout">
+        <CsvImport onGenerate={handleCsv} onPreviewChange={setPreviewLabel} isActive={activePanel === "csv"} onActivate={() => setActivePanel("csv")} />
       </div>
     </main>
   );
