@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CsvImport } from "./components/CsvImport";
 import { LabelForm } from "./components/LabelForm";
 import { LabelPreview } from "./components/LabelPreview";
-import { PredefinedSelector } from "./components/PredefinedSelector";
-import { downloadBatch, downloadSingle, fetchPredefined } from "./services/api";
+import { downloadBatch, downloadSingle } from "./services/api";
 import { saveBlob } from "./services/download";
-import type { LabelInput, PredefinedLabel } from "./types/label";
+import type { LabelInput } from "./types/label";
 
 function slugifyTitle(value: string): string {
   return value
@@ -27,42 +26,14 @@ function buildBatchZipFileName(date = new Date()): string {
 }
 
 export function App() {
-  const [labels, setLabels] = useState<PredefinedLabel[]>([]);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
   const [previewLabel, setPreviewLabel] = useState<LabelInput | null>(null);
-  const [activePanel, setActivePanel] = useState<"custom" | "predefined" | "csv">("custom");
-
-  useEffect(() => {
-    const run = async () => {
-      try {
-        setLabels(await fetchPredefined());
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load predefined labels");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    run();
-  }, []);
+  const [activePanel, setActivePanel] = useState<"custom" | "csv">("custom");
 
   const handleCustom = async (input: LabelInput) => {
     setError("");
     const blob = await downloadSingle(input);
     saveBlob(blob, `${slugifyTitle(input.title)}.stl`);
-  };
-
-  const handleBatch = async (selected: PredefinedLabel[]) => {
-    setError("");
-    const result = await downloadBatch(selected);
-    if (result.isZip) {
-      saveBlob(result.blob, buildBatchZipFileName());
-      return;
-    }
-
-    const single = selected[0];
-    saveBlob(result.blob, `${slugifyTitle(single.title)}.stl`);
   };
 
   const handleCsv = async (rows: LabelInput[], onProgress: (done: number, total: number) => void) => {
@@ -81,9 +52,6 @@ export function App() {
 
   return (
     <main className="app">
-      <a href="https://geni.us/CNCStoreLabelGen" target="_blank" rel="noopener noreferrer">
-        <img src={`${import.meta.env.BASE_URL}header.jpg`} alt="CNC Kitchen" className="header-banner" />
-      </a>
       <header>
         <h1>Gridfinity Label Generator (Beta)</h1>
       </header>
@@ -98,19 +66,13 @@ export function App() {
           <strong>color change in layer 3</strong> for best contrast.{" "}
           The <strong>Arachne wall generator</strong> is recommended for sharper detail.
         </p>
-        <p>
-          Includes pre-defined labels for all <strong>CNC Kitchen fasteners &amp; inserts</strong>.
-        </p>
         <p className="info-beta">
-          ⚠️ This is a <strong>beta</strong> — found a bug or want a new feature?{" "}
+          ⚠️ This is a <strong>beta</strong>. Found a bug or want a new feature?{" "}
           Open an issue on{" "}
-          <a href="https://github.com/CNCKitchen/gridfinityLabelGenerator/issues" target="_blank" rel="noopener noreferrer">GitHub</a>{" "}
-          or comment on{" "}
-          <a href="https://www.printables.com/model/1635048-gridfinity-label-generator-web-app" target="_blank" rel="noopener noreferrer">Printables</a>.
+          <a href="https://github.com/tonnesfn/gridfinityLabelGenerator/issues" target="_blank" rel="noopener noreferrer">GitHub</a>.
         </p>
       </div>
 
-      {loading ? <p>Loading predefined labels...</p> : null}
       {error ? <p className="error">{error}</p> : null}
 
       <section className="panel preview-panel">
@@ -119,12 +81,20 @@ export function App() {
 
       <div className="layout">
         <LabelForm onGenerate={handleCustom} onPreviewChange={setPreviewLabel} isActive={activePanel === "custom"} onActivate={() => setActivePanel("custom")} />
-        <PredefinedSelector labels={labels} onGenerate={handleBatch} onPreviewChange={setPreviewLabel} isActive={activePanel === "predefined"} onActivate={() => setActivePanel("predefined")} />
-      </div>
-
-      <div className="layout csv-layout">
         <CsvImport onGenerate={handleCsv} onPreviewChange={setPreviewLabel} isActive={activePanel === "csv"} onActivate={() => setActivePanel("csv")} />
       </div>
+
+      <footer className="attribution">
+        <p>
+          Based on the{" "}
+          <a href="https://github.com/CNCKitchen/gridfinityLabelGenerator" target="_blank" rel="noopener noreferrer">
+            Gridfinity Label Generator
+          </a>{" "}
+          by{" "}
+          <a href="https://www.cnckitchen.com/" target="_blank" rel="noopener noreferrer">CNC Kitchen</a>.
+          This is an independent fork.
+        </p>
+      </footer>
     </main>
   );
 }

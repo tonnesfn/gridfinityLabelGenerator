@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import type { LabelInput } from "../types/label";
 import { CLIPARTS, LINE2_IMAGES } from "../data/cliparts";
 
+// Sentinel for the symbol picker: draw text in the icon box instead of clipart
+const TEXT_ICON = "__text__";
+
 interface LabelFormProps {
   onGenerate: (input: LabelInput) => Promise<void>;
   onPreviewChange?: (label: LabelInput) => void;
@@ -15,27 +18,31 @@ export function LabelForm({ onGenerate, onPreviewChange, isActive, onActivate }:
   const [line2Mode, setLine2Mode] = useState<"text" | "image">("text");
   const [selectedLine2Image, setSelectedLine2Image] = useState<string | null>(null);
   const [selectedClipart, setSelectedClipart] = useState<string | null>("torx");
+  const [iconText, setIconText] = useState("TX10");
   const [labelWidth, setLabelWidth] = useState<1 | 2 | 3>(1);
   const [loading, setLoading] = useState(false);
 
   function buildLabel(): LabelInput {
+    const useText = selectedClipart === TEXT_ICON && iconText.trim() !== "";
     const clip = CLIPARTS.find((c) => c.id === selectedClipart);
-    const iconSvg = clip?.svg ?? "";
-    const iconViewBox = clip?.viewBox;
+    const iconSvg = useText ? "" : clip?.svg ?? "";
+    const iconViewBox = useText ? undefined : clip?.viewBox;
+    // A text icon renders in place of the clipart, e.g. a drive size like TX10
+    const textIcon = useText ? { iconText: iconText.trim() } : {};
     if (line2Mode === "image" && selectedLine2Image) {
       const img = LINE2_IMAGES.find((i) => i.id === selectedLine2Image)!;
       const title = [line1].filter(Boolean).join(" ");
-      return { title, line1, line2: "", iconSvg, iconViewBox, line2Svg: img.svg, line2ViewBox: img.viewBox, labelWidth };
+      return { title, line1, line2: "", iconSvg, iconViewBox, ...textIcon, line2Svg: img.svg, line2ViewBox: img.viewBox, labelWidth };
     }
     const title = [line1, line2].filter(Boolean).join(" ");
-    return { title, line1, line2, iconSvg, iconViewBox, labelWidth };
+    return { title, line1, line2, iconSvg, iconViewBox, ...textIcon, labelWidth };
   }
 
   // Emit preview on every change, and once on mount
   useEffect(() => {
     if (!onPreviewChange) return;
     onPreviewChange(buildLabel());
-  }, [line1, line2, line2Mode, selectedLine2Image, selectedClipart, labelWidth, onPreviewChange]);
+  }, [line1, line2, line2Mode, selectedLine2Image, selectedClipart, iconText, labelWidth, onPreviewChange]);
 
   const handleFocusEnter = (e: React.FocusEvent<HTMLFormElement>) => {
     if (onPreviewChange && !e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -130,6 +137,27 @@ export function LabelForm({ onGenerate, onPreviewChange, isActive, onActivate }:
             </svg>
             <span>None</span>
           </button>
+          <button
+            type="button"
+            className={`symbol-item${selectedClipart === TEXT_ICON ? " selected" : ""}`}
+            onClick={() => setSelectedClipart((prev) => (prev === TEXT_ICON ? null : TEXT_ICON))}
+            title="Use text as the symbol, for example a drive size like TX10"
+          >
+            <svg viewBox="0 0 40 40" width="40" height="40">
+              <text
+                x="20"
+                y="21"
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontSize="15"
+                fontWeight="bold"
+                fill="#94a3b8"
+              >
+                Ab
+              </text>
+            </svg>
+            <span>Text</span>
+          </button>
           {CLIPARTS.map((c) => (
             <button
               key={c.id}
@@ -157,6 +185,16 @@ export function LabelForm({ onGenerate, onPreviewChange, isActive, onActivate }:
             </button>
           ))}
         </div>
+        {selectedClipart === TEXT_ICON ? (
+          <label>
+            Symbol text
+            <input
+              value={iconText}
+              onChange={(e) => setIconText(e.target.value)}
+              placeholder="TX10"
+            />
+          </label>
+        ) : null}
       </div>
       <div className="width-selector">
         <span>Label Width</span>

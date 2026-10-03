@@ -386,11 +386,6 @@ button:disabled {
 
 /* CSV import panel */
 
-.csv-layout {
-  margin-top: 16px;
-  grid-template-columns: 1fr;
-}
-
 .csv-drop {
   border: 2px dashed #475569;
   border-radius: 8px;
@@ -434,5 +429,27 @@ button:disabled {
 }
 
 .link-button:hover {
+  text-decoration: underline;
+}
+
+.attribution {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #334155;
+  font-size: 13px;
+  color: #64748b;
+  text-align: center;
+}
+
+.attribution p {
+  margin: 0;
+}
+
+.attribution a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+.attribution a:hover {
   text-decoration: underline;
 }
