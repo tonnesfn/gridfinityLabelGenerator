@@ -1,0 +1,20 @@
+services:
+  web:
+    build: .
+    image: gridfinity-label-generator
+    restart: unless-stopped
+    depends_on:
+      - csv-server
+    ports:
+      - "${BIND_ADDRESS:-100.109.114.47}:8009:8009"
+  csv-server:
+    build:
+      context: .
+      target: csv-server
+    image: gridfinity-label-generator-csv
+    restart: unless-stopped
+    volumes:
+      - saved-csvs:/data/csvs
+
+volumes:
+  saved-csvs:

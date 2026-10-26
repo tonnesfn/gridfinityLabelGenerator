@@ -1,3 +1,5 @@
+export type LabelStyle = "pred" | "glue-on";
+
 export interface LabelInput {
   id?: string;
   title: string;
@@ -9,6 +11,7 @@ export interface LabelInput {
   line2Svg?: string;    // SVG to render in the line-2 box instead of text
   line2ViewBox?: string; // viewBox crop for line2Svg (A4-canvas SVGs need cropping)
   labelWidth?: 1 | 2 | 3; // number of gridfinity units wide (37.8 + (n-1)*42 mm)
+  labelStyle?: LabelStyle; // defaults to the original Pred mounting design
 }
 
 export type LabelCategory = "fasteners" | "inserts";

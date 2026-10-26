@@ -14,6 +14,7 @@ import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 import { FontLoader, type Font } from "three/examples/jsm/loaders/FontLoader.js";
 import type { LabelInput } from "../types/label";
+import { createGlueOnBase } from "./labelBase";
 
 const EMBOSS_HEIGHT = 0.4;
 
@@ -352,8 +353,12 @@ export async function generateLabelStl(label: LabelInput): Promise<ArrayBuffer> 
   // Centre the marking on the expanded label
   contentXOffset = extraWidth / 2;
 
-  const baseMesh = cloneBaseMesh();
-  if (extraWidth > 0) widenGeometry(baseMesh.geometry, extraWidth);
+  const baseMesh = label.labelStyle === "glue-on"
+    ? new Mesh(createGlueOnBase(baseGeometry.boundingBox!, extraWidth), material)
+    : cloneBaseMesh();
+  if (label.labelStyle !== "glue-on" && extraWidth > 0) {
+    widenGeometry(baseMesh.geometry, extraWidth);
+  }
 
   const root = new Group();
   root.add(baseMesh);

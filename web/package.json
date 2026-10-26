@@ -9,6 +9,7 @@
     "dev": "vite",
     "prebuild": "node scripts/write-build-info.mjs",
     "build": "tsc -b && vite build",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

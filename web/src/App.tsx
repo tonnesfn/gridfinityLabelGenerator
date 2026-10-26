@@ -58,18 +58,13 @@ export function App() {
 
       <div className="info-box">
         <p>
-          Labels are designed for{" "}
+          Choose glue-on labels for standard bins, or mounting ears and holes for{" "}
           <a href="https://www.printables.com/model/592545-gridfinity-bin-with-printable-label-by-pred-parame" target="_blank" rel="noopener noreferrer">
             the Gridfinity Bin with Printable Label by Pred
           </a>
           . Print at <strong>0.2 mm layer height</strong> with a{" "}
           <strong>color change in layer 3</strong> for best contrast.{" "}
           The <strong>Arachne wall generator</strong> is recommended for sharper detail.
-        </p>
-        <p className="info-beta">
-          ⚠️ This is a <strong>beta</strong>. Found a bug or want a new feature?{" "}
-          Open an issue on{" "}
-          <a href="https://github.com/tonnesfn/gridfinityLabelGenerator/issues" target="_blank" rel="noopener noreferrer">GitHub</a>.
         </p>
       </div>
 

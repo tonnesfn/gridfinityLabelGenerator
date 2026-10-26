@@ -1,4 +1,6 @@
 node_modules/
+/data/
+/server/data/
 server/node_modules/
 web/node_modules/
 server/dist/

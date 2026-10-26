@@ -1,4 +1,4 @@
-import type { LabelInput } from "../types/label";
+import type { LabelInput, LabelStyle } from "../types/label";
 import { findClipart, findLine2Image } from "../data/cliparts";
 
 export interface CsvRowError {
@@ -25,6 +25,8 @@ const COLUMN_ALIASES: Record<string, string> = {
   line2image: "image",
   width: "width",
   labelwidth: "width",
+  style: "style",
+  labelstyle: "style",
   title: "title",
   filename: "title",
   icontext: "iconText",
@@ -136,6 +138,12 @@ export function parseLabelCsv(text: string): CsvParseResult {
     const imageName = get("image");
     const widthRaw = get("width");
     const iconText = get("iconText");
+    const styleRaw = get("style").toLowerCase();
+    const labelStyle: LabelStyle = styleRaw === "glue-on" ? "glue-on" : "pred";
+    if (styleRaw && styleRaw !== "pred" && styleRaw !== "glue-on") {
+      errors.push({ row: rowNumber, message: `Style must be "pred" or "glue-on" (got "${get("style")}").` });
+      continue;
+    }
 
     if (!line1 && !line2) {
       errors.push({ row: rowNumber, message: "Needs text in line1 or line2." });
@@ -190,6 +198,7 @@ export function parseLabelCsv(text: string): CsvParseResult {
       line2Svg,
       line2ViewBox,
       labelWidth,
+      labelStyle,
     });
   }
 
@@ -201,10 +210,10 @@ export function parseLabelCsv(text: string): CsvParseResult {
 }
 
 export const CSV_TEMPLATE = [
-  "line1,line2,icon,image,width",
-  "M3x10,Screw,torx,,1",
-  "M3,Washer,washer,,1",
-  "M3,Hex Nut,nut,,1",
-  "M4x20,,pozidriv,cyl,1",
-  "M5x30 Socket Cap,Screw,hex,,2",
+  "line1,line2,icon,image,width,style",
+  "M3x10,Screw,torx,,1,pred",
+  "M3,Washer,washer,,1,pred",
+  "M3,Hex Nut,nut,,1,glue-on",
+  "M4x20,,pozidriv,cyl,1,glue-on",
+  "M5x30 Socket Cap,Screw,hex,,2,glue-on",
 ].join("\n");

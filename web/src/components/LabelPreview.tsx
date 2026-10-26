@@ -42,7 +42,11 @@ interface LabelPreviewProps {
 }
 
 export function LabelPreview({ label }: LabelPreviewProps) {
+  const extraWidth = label?.labelStyle === "glue-on" ? ((label.labelWidth ?? 1) - 1) * 42 : 0;
   function renderLabelShape() {
+    if (label?.labelStyle === "glue-on") {
+      return <rect x="1" y="0" width={LABEL_W - 2 + extraWidth} height={LABEL_H} rx="0.9" fill="#0f172a" stroke="#475569" strokeWidth="0.5" />;
+    }
     // Paths from label.svg, scaled to overlay mm via:  scale(0.264583) translate(137.19, -1120.59)
     return (
       <g transform={LABEL_TRANSFORM} strokeLinecap="round" strokeLinejoin="round">
@@ -252,7 +256,7 @@ export function LabelPreview({ label }: LabelPreviewProps) {
   return (
     <svg
       className="preview-svg"
-      viewBox={VB}
+      viewBox={extraWidth ? `${-VB_MARGIN} ${-VB_MARGIN} ${LABEL_W + extraWidth + VB_MARGIN * 2} ${LABEL_H + VB_MARGIN * 2}` : VB}
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
@@ -262,9 +266,11 @@ export function LabelPreview({ label }: LabelPreviewProps) {
         </filter>
       </defs>
       {renderLabelShape()}
-      {renderIcon()}
-      {renderLine1()}
-      {renderLine2()}
+      <g transform={`translate(${extraWidth / 2}, 0)`}>
+        {renderIcon()}
+        {renderLine1()}
+        {renderLine2()}
+      </g>
     </svg>
   );
 }

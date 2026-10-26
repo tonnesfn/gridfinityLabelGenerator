@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { LabelInput } from "../types/label";
+import type { LabelInput, LabelStyle } from "../types/label";
 import { CLIPARTS, LINE2_IMAGES } from "../data/cliparts";
 
 // Sentinel for the symbol picker: draw text in the icon box instead of clipart
@@ -20,6 +20,7 @@ export function LabelForm({ onGenerate, onPreviewChange, isActive, onActivate }:
   const [selectedClipart, setSelectedClipart] = useState<string | null>("torx");
   const [iconText, setIconText] = useState("TX10");
   const [labelWidth, setLabelWidth] = useState<1 | 2 | 3>(1);
+  const [labelStyle, setLabelStyle] = useState<LabelStyle>("pred");
   const [loading, setLoading] = useState(false);
 
   function buildLabel(): LabelInput {
@@ -32,17 +33,17 @@ export function LabelForm({ onGenerate, onPreviewChange, isActive, onActivate }:
     if (line2Mode === "image" && selectedLine2Image) {
       const img = LINE2_IMAGES.find((i) => i.id === selectedLine2Image)!;
       const title = [line1].filter(Boolean).join(" ");
-      return { title, line1, line2: "", iconSvg, iconViewBox, ...textIcon, line2Svg: img.svg, line2ViewBox: img.viewBox, labelWidth };
+      return { title, line1, line2: "", iconSvg, iconViewBox, ...textIcon, line2Svg: img.svg, line2ViewBox: img.viewBox, labelWidth, labelStyle };
     }
     const title = [line1, line2].filter(Boolean).join(" ");
-    return { title, line1, line2, iconSvg, iconViewBox, ...textIcon, labelWidth };
+    return { title, line1, line2, iconSvg, iconViewBox, ...textIcon, labelWidth, labelStyle };
   }
 
   // Emit preview on every change, and once on mount
   useEffect(() => {
     if (!onPreviewChange) return;
     onPreviewChange(buildLabel());
-  }, [line1, line2, line2Mode, selectedLine2Image, selectedClipart, iconText, labelWidth, onPreviewChange]);
+  }, [line1, line2, line2Mode, selectedLine2Image, selectedClipart, iconText, labelWidth, labelStyle, onPreviewChange]);
 
   const handleFocusEnter = (e: React.FocusEvent<HTMLFormElement>) => {
     if (onPreviewChange && !e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -63,6 +64,13 @@ export function LabelForm({ onGenerate, onPreviewChange, isActive, onActivate }:
   return (
     <form className={`panel${isActive ? " panel-active" : ""}`} onSubmit={handleSubmit} onFocus={handleFocusEnter} onPointerDown={() => onActivate?.()}>
       <h2>Create Your Own Label</h2>
+      <label>
+        Label style
+        <select value={labelStyle} onChange={(e) => setLabelStyle(e.target.value as LabelStyle)}>
+          <option value="pred">Pred bins — ears and holes</option>
+          <option value="glue-on">Glue-on — no ears or holes</option>
+        </select>
+      </label>
       <label>
         Line 1
         <input value={line1} onChange={(e) => setLine1(e.target.value)} required />

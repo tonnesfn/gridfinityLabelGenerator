@@ -50,14 +50,6 @@ header {
   text-decoration: underline;
 }
 
-.info-beta {
-  color: #fbbf24;
-}
-
-.info-beta strong {
-  color: #fbbf24;
-}
-
 .header-banner {
   display: block;
   width: 100%;
@@ -108,13 +100,26 @@ label {
   font-size: 14px;
 }
 
-input {
+input, select {
   border-radius: 6px;
   border: 1px solid #475569;
   background: #0f172a;
   color: #e2e8f0;
   padding: 8px;
 }
+
+.saved-csvs {
+  border-top: 1px solid #475569;
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+.saved-csvs h3 { margin: 0 0 8px; }
+.saved-csvs ul { list-style: none; padding: 0; margin: 0; }
+.saved-csvs li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; }
+.saved-csvs li > div { min-width: 0; overflow-wrap: anywhere; }
+.saved-csvs time { display: block; font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.saved-csvs button { flex-shrink: 0; }
 
 button {
   margin-top: 8px;

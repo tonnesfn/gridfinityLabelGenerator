@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+.git
+.agents
+.codex
+.aws
+server/node_modules
+server/dist
+data/
+server/data/
+archive
+new_assets
+newassets
